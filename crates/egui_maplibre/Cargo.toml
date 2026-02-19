@@ -11,5 +11,27 @@ readme.workspace = true
 [lib]
 path = "src/lib.rs"
 
+[features]
+default = ["image"]
+image = ["dep:maplibre_native"]
+glow = ["dep:eframe", "image"]
+vulkan = ["maplibre_native/vulkan"]
+opengl = ["maplibre_native/opengl"]
+metal = ["maplibre_native/metal"]
+log = ["maplibre_native/log"]
+
+[dependencies]
+crossbeam-channel = { workspace = true }
+eframe = { workspace = true, optional = true }
+egui = { workspace = true }
+image = { workspace = true }
+instant = { workspace = true }
+maplibre_native = { workspace = true, optional = true }
+parking_lot = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+url = { workspace = true }
+
 [lints]
 workspace = true
