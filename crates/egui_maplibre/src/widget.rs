@@ -202,16 +202,31 @@ impl EguiMapLibre {
         let mut event_kind = MapEventKind::Move;
 
         if self.interactive {
-            if response.drag_started() {
-                self.dragging = true;
-                self.last_drag_delta = Vec2::ZERO;
-                self.drag_limiter.reset();
-            }
+            let (pointer_primary_down, pointer_delta) = ui.input(|input| {
+                (
+                    input.pointer.primary_down(),
+                    input.pointer.delta(),
+                )
+            });
 
-            if response.dragged() {
-                let drag_delta = response.drag_delta();
-                let frame_delta = drag_delta - self.last_drag_delta;
-                self.last_drag_delta = drag_delta;
+            let response_dragging = response.drag_started() || response.dragged();
+            let pointer_dragging = response.hovered() && pointer_primary_down;
+            if response_dragging || pointer_dragging {
+                if !self.dragging {
+                    self.dragging = true;
+                    self.last_drag_delta = Vec2::ZERO;
+                    self.drag_limiter.reset();
+                }
+
+                let frame_delta = if response.dragged() {
+                    let drag_delta = response.drag_delta();
+                    let frame_delta = drag_delta - self.last_drag_delta;
+                    self.last_drag_delta = drag_delta;
+                    frame_delta
+                } else {
+                    pointer_delta
+                };
+
                 if frame_delta != Vec2::ZERO {
                     let (shift, ctrl) = ui.input(|input| {
                         (
@@ -266,7 +281,7 @@ impl EguiMapLibre {
                 }
             }
 
-            if response.drag_stopped() {
+            if self.dragging && !pointer_primary_down {
                 self.dragging = false;
                 self.last_drag_delta = Vec2::ZERO;
                 if self.runtime.quality.render_full_res_on_release {
@@ -320,6 +335,11 @@ impl EguiMapLibre {
             ui.ctx().request_repaint();
         }
 
+        if self.texture.is_none() {
+            self.request_render(RenderReason::Initial);
+            ui.ctx().request_repaint();
+        }
+
         self.paint(ui, rect);
 
         let mut events = Vec::new();
@@ -347,7 +367,6 @@ impl EguiMapLibre {
         self.worker = Some(worker);
         self.send_worker(WorkerCmd::SetStyle(self.style.clone()));
         self.push_camera_to_worker();
-        self.request_render(RenderReason::Initial);
     }
 
     fn configure_worker(&mut self, rect: Rect, pixels_per_point: f32, scale: f32) {
