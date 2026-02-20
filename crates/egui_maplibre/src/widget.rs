@@ -202,12 +202,8 @@ impl EguiMapLibre {
         let mut event_kind = MapEventKind::Move;
 
         if self.interactive {
-            let (pointer_primary_down, pointer_delta) = ui.input(|input| {
-                (
-                    input.pointer.primary_down(),
-                    input.pointer.delta(),
-                )
-            });
+            let (pointer_primary_down, pointer_delta) =
+                ui.input(|input| (input.pointer.primary_down(), input.pointer.delta()));
 
             let response_dragging = response.drag_started() || response.dragged();
             let pointer_dragging = response.hovered() && pointer_primary_down;
