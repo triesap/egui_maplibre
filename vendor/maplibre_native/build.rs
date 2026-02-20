@@ -76,6 +76,13 @@ impl std::fmt::Display for GraphicsRenderingAPI {
     }
 }
 
+fn emit_build_verbose_warning(message: impl AsRef<str>) {
+    println!("cargo:rerun-if-env-changed=MLN_BUILD_VERBOSE");
+    if env::var("MLN_BUILD_VERBOSE").is_ok() {
+        println!("cargo:warning={}", message.as_ref());
+    }
+}
+
 fn is_macos_arm64_target() -> bool {
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not set");
@@ -207,10 +214,10 @@ fn download_static(out_dir: &Path, revision: &str) -> (PathBuf, PathBuf) {
         let static_url = format!(
             "https://github.com/maplibre/maplibre-native/releases/download/{revision}/{lib_filename}"
         );
-        println!(
-            "cargo:warning=Downloading precompiled maplibre-native core library from {static_url} into {}",
+        emit_build_verbose_warning(format!(
+            "Downloading precompiled maplibre-native core library from {static_url} into {}",
             out_dir.display()
-        );
+        ));
         tasks.push(Download::new(&static_url));
     }
 
@@ -219,10 +226,10 @@ fn download_static(out_dir: &Path, revision: &str) -> (PathBuf, PathBuf) {
         let headers_url = format!(
             "https://github.com/maplibre/maplibre-native/releases/download/{revision}/maplibre-native-headers.tar.gz"
         );
-        println!(
-            "cargo:warning=Downloading headers for maplibre-native core library from {headers_url} into {}",
+        emit_build_verbose_warning(format!(
+            "Downloading headers for maplibre-native core library from {headers_url} into {}",
             out_dir.display()
-        );
+        ));
         tasks.push(Download::new(&headers_url));
     }
     fs::create_dir_all(out_dir).expect("Failed to create output directory");
@@ -248,11 +255,11 @@ fn download_static(out_dir: &Path, revision: &str) -> (PathBuf, PathBuf) {
 
 /// Extracts the headers from the downloaded tarball
 fn extract_headers(headers_from: &Path, headers_to: &Path) {
-    println!(
-        "cargo:warning=Extracting headers for maplibre-native core library from {} into {}",
+    emit_build_verbose_warning(format!(
+        "Extracting headers for maplibre-native core library from {} into {}",
         headers_from.display(),
         headers_to.display()
-    );
+    ));
     let headers_file = fs::File::open(headers_from).expect("Failed to open headers file");
     let mut tar = flate2::read::GzDecoder::new(headers_file);
 
@@ -353,10 +360,10 @@ fn build_mln() {
     let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
     let (cpp_root, include_dirs) = resolve_mln_core(&root);
-    println!(
-        "cargo:warning=Using precompiled maplibre-native static library from {}",
+    emit_build_verbose_warning(format!(
+        "Using precompiled maplibre-native static library from {}",
         cpp_root.display()
-    );
+    ));
     println!(
         "cargo:rustc-link-search=native={}",
         cpp_root.parent().unwrap().display()
