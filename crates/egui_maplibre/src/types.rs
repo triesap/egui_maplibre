@@ -253,19 +253,10 @@ pub struct MapEvent {
     pub view: MapViewState,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct MapRuntimeOptions {
     pub quality: QualityPolicy,
     pub tile: TileServerOptions,
-}
-
-impl Default for MapRuntimeOptions {
-    fn default() -> Self {
-        Self {
-            quality: QualityPolicy::default(),
-            tile: TileServerOptions::default(),
-        }
-    }
 }
 
 #[cfg(test)]

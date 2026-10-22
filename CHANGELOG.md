@@ -7,4 +7,5 @@ Semantic Versioning.
 
 ## [Unreleased]
 
+- Raise the development toolchain and minimum supported Rust version to 1.99.0.
 - Initial repository bootstrap.

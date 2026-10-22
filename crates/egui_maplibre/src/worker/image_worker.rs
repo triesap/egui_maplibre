@@ -1,6 +1,6 @@
 use std::thread::{self, JoinHandle};
 
-use crossbeam_channel::{Receiver, Sender, TryRecvError, unbounded};
+use crossbeam_channel::{Receiver, Sender, unbounded};
 
 #[cfg(feature = "image")]
 use super::protocol::RenderedFrame;
@@ -42,10 +42,7 @@ impl ImageWorkerState {
 
     #[must_use]
     pub fn try_recv(&self) -> Option<WorkerFrameResult> {
-        match self.frame_rx.try_recv() {
-            Ok(frame) => Some(frame),
-            Err(TryRecvError::Empty | TryRecvError::Disconnected) => None,
-        }
+        self.frame_rx.try_recv().ok()
     }
 
     #[must_use]

@@ -11,6 +11,10 @@ pub enum RenderReason {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "Keep the public owned-command API without allocating each configuration message"
+)]
 pub enum WorkerCmd {
     Configure {
         width_px: u32,

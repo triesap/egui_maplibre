@@ -9,6 +9,8 @@ Thanks for your interest in contributing to egui_maplibre.
 
 ## Development setup
 
+Use Rust 1.99.0, the pinned development toolchain and minimum supported version.
+
 This repository is a Rust workspace. Typical tasks:
 
 - `cargo fmt`
